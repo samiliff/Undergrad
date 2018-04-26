@@ -1,0 +1,64 @@
+---
+title: "Coral Data"
+author: "sammy"
+date: "April 25, 2018"
+output: html_document
+---
+#Coral Data
+
+
+##Set Up
+Combine benthic observation data with oceanographic buoy data and explore patterns.
+
+```{r setup}
+## libraries
+#install.packages("skimr")
+library(tidyverse)
+library(janitor) # install.packages('janitor')
+library(skimr) # install.packages('skimr')
+library(stringr) # added when we needed it for benthic data
+
+## data filepaths/urls ----
+
+## benthic data
+benthic_url <- 'https://www.nodc.noaa.gov/archive/arc0054/0104255/1.1/data/0-data/cd08/100308OaAla03m.CSV'
+
+## buoy data
+buoy_url <- 'http://www.ndbc.noaa.gov/view_text_file.php?filename=mokh1h2010.txt.gz&dir=data/historical/stdmet/'
+```
+
+##Make Data set
+
+```{r data frame}
+benthic_raw <- read_csv(benthic_url)
+head(benthic_raw) 
+
+
+```
+
+##Clean Up header names
+
+```{r make the names pretty}
+benthic <- benthic_raw %>%
+  janitor::clean_names()
+
+names(benthic)
+```
+
+##Pulling out a few columns that look useful for working with.
+
+```{r}
+benthic <- benthic %>%
+  select(id_name, point, x, y, id_date)
+
+head(benthic)
+```
+
+```{r}
+ggplot(benthic, aes(id_date, fill = id_name)) +
+         geom_bar()
+```
+
+
+
+
