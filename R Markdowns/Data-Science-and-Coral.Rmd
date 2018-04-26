@@ -4,7 +4,7 @@ author: "sammy"
 date: "April 25, 2018"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 #Learning GG Plot
@@ -99,7 +99,7 @@ manipulate({
 
 Wait for it... MADE A GRAPH WITH SLIDER BARS TO ADJUST BOTH! 
 
-```{r}
+```{r EVAL=False}
 library("manipulate") 
 
 
@@ -120,7 +120,7 @@ manipulate({
 #Playing around with gviss
 Also changes the width of the bins
 
-```{r}
+```{r EVAL=False}
 #install.packages('ggvis')
 library("ggvis")  
 
@@ -133,22 +133,37 @@ faithful %>%
   add_axis('y', title = 'count')
 ```
 
-Let’s use ggvis tooltip() to show values of a scatterplot on mouse hover.
+#Messing around more with ggplot
+
+
+Color coding points based on class. 
+```{r}
+ggplot(data = mpg, aes(x = displ, y = hwy)) +
+    geom_point(aes(color = class))
+```
+
+Applying this to my thesis data.So, so satisfying. 
+```{r}
+ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters)) +
+    geom_point(aes(color = Treatment))
+```
 
 ```{r}
-cars = mtcars %>%
-  add_rownames('model') %>%        # dplyr drops rownames
-  mutate(id = row_number()) # add an id column to use ask the key
-
-all_values <- function(x) {
-  if(is.null(x)) return(NULL)
-  row <- cars[cars$id == x$id, ]
-  paste0(names(row), ": ", format(row), collapse = "<br/>")
-}
-
-cars %>% 
-  ggvis(x = ~wt, y = ~mpg, key := ~id) %>%
-  layer_points() %>%
-  add_tooltip(all_values, 'hover')
+ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters)) +
+    geom_point(aes(shape = Treatment))
 ```
+
+```{r}
+ggplot(data = Sam_sThesisData) + 
+  geom_point(mapping = aes(x = Mussel, y = Oysters, size = Treatment))
+```
+
+#Splits output by factor SUPER USEFUL!
+
+```{r}
+ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters)) +
+    geom_point() +
+    facet_wrap(~ Treatment)
+```
+
 
