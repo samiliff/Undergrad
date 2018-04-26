@@ -1,0 +1,154 @@
+---
+title: "Data in Coral Science"
+author: "sammy"
+date: "April 25, 2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+#Learning GG Plot
+
+
+There are a couple of useful packages for interacting within RStudio. Here are their package descriptions:
+
+manipulate: Interactive plotting functions for use within RStudio. The manipulate function accepts a plotting expression and a set of controls (e.g. slider, picker, checkbox, or button) which are used to dynamically change values within the expression. When a value is changed using its corresponding control the expression is automatically re-executed and the plot is redrawn.
+
+ggvis: An implementation of an interactive grammar of graphics, taking the best parts of ‘ggplot2’, combining them with the reactive framework from ‘shiny’ and web graphics from ‘vega’.
+
+So manipulate gives you controls (slider, picker, checkbox) within just the RStudio for any plotting package. The ggvis package provides its own plotting capabilities, borrowed in concept from ggplot2, for within the console (input_slider, input_select, input_checkbox), and also provides interactivity within the plot (add_tooltip on hover or click mouse events) and works with Shiny interactive applications. Neither package provides interactivity in HTML from rendered Rmarkdown documents.
+
+manipulate
+Let’s look at a simple ggplot histogram of eruptions from the Old Faithful geyser in Yellowstone.
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+})
+
+faithful %>%
+  ggplot(aes(eruptions)) + 
+  geom_histogram(aes(y = ..density..),  bins = 20) +
+  geom_density(color='blue', size=2, adjust = 0.25) +
+  xlab('duration (minutes)') +
+  ylab('frequency density') +
+  ggtitle('geyser eruption duration')
+```
+
+Same code but changed the adjust to 3 and size to 4. 
+
+```{r}
+faithful %>%
+  ggplot(aes(eruptions)) + 
+  geom_histogram(aes(y = ..density..),  bins = 20) +
+  geom_density(color='blue', size=4, adjust = 2) +
+  xlab('duration (minutes)') +
+  ylab('frequency density') +
+  ggtitle('geyser eruption duration')
+```
+
+We can use the manipulate function to provide interactive sliders, checkboxes and pickers. It only works within RStudio and does not work in a knitting context, so be sure to set eval=FALSE in the R chunk options.
+
+```{r}
+#install.packages("manipulate")
+```
+In order for the slider bar to pop up, go to the gear (top of RMD menu), then select chunk output in console!!! (not mentioned on website).
+
+```{r EVAL = FALSE}
+
+library("manipulate") 
+
+
+manipulate({
+  
+  faithful %>%
+    ggplot(aes(eruptions)) + 
+    geom_histogram(aes(y = ..density..),  bins = 20) +
+    geom_density(color='blue', size=2, adjust=a) +
+    xlab('duration (minutes)') +
+    ylab('frequency density') +
+    ggtitle('geyser eruption duration')
+  
+}, a = slider(min = 0, max = 10, initial = 1, label = 'bandwidth adjustment', step = 0.2))
+```
+
+Created a new graph with a slider to manupilate Bins. 
+
+```{r EVAL=False}
+library("manipulate") 
+
+
+manipulate({
+  
+  faithful %>%
+    ggplot(aes(eruptions)) + 
+    geom_histogram(aes(y = ..density..),  bins = a) +
+    geom_density(color='blue', size=2, adjust=1) +
+    xlab('duration (minutes)') +
+    ylab('frequency density') +
+    ggtitle('geyser eruption duration')
+  
+}, a = slider(min = 5, max = 50, initial = 5, label = 'bin adjustment', step = 5))
+
+
+
+```
+
+
+
+Wait for it... MADE A GRAPH WITH SLIDER BARS TO ADJUST BOTH! 
+
+```{r}
+library("manipulate") 
+
+
+manipulate({
+  
+  faithful %>%
+    ggplot(aes(eruptions)) + 
+    geom_histogram(aes(y = ..density..),  bins = b) +
+    geom_density(color='blue', size=2, adjust=a) +
+    xlab('duration (minutes)') +
+    ylab('frequency density') +
+    ggtitle('geyser eruption duration')
+  
+}, a = slider(min = 0, max = 10, initial = 1, label = 'bandwidth adjustment', step = 0.2), b = slider(min = 5, max = 50, initial = 5, label = 'bin adjustment', step = 5))
+```
+
+
+#Playing around with gviss
+Also changes the width of the bins
+
+```{r}
+#install.packages('ggvis')
+library("ggvis")  
+
+faithful %>%
+  ggvis(~eruptions) %>%
+  layer_histograms(
+    width = input_slider(0.1, 2, step = 0.2, label = 'bin width'),
+    fill = 'blue') %>%
+  add_axis('x', title = 'duration (minutes)') %>%
+  add_axis('y', title = 'count')
+```
+
+Let’s use ggvis tooltip() to show values of a scatterplot on mouse hover.
+
+```{r}
+cars = mtcars %>%
+  add_rownames('model') %>%        # dplyr drops rownames
+  mutate(id = row_number()) # add an id column to use ask the key
+
+all_values <- function(x) {
+  if(is.null(x)) return(NULL)
+  row <- cars[cars$id == x$id, ]
+  paste0(names(row), ": ", format(row), collapse = "<br/>")
+}
+
+cars %>% 
+  ggvis(x = ~wt, y = ~mpg, key := ~id) %>%
+  layer_points() %>%
+  add_tooltip(all_values, 'hover')
+```
+
