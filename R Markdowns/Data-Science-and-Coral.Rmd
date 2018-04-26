@@ -148,10 +148,13 @@ ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters)) +
     geom_point(aes(color = Treatment))
 ```
 
+##Points Classes by shape
 ```{r}
 ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters)) +
     geom_point(aes(shape = Treatment))
 ```
+
+##Points Classes by size
 
 ```{r}
 ggplot(data = Sam_sThesisData) + 
@@ -165,5 +168,53 @@ ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters)) +
     geom_point() +
     facet_wrap(~ Treatment)
 ```
+
+##Ugh so pretty. Splitting and color coding.AND making a white background theme_bw() to make it easier to read when printed. 
+
+```{r}
+ggplot(data = Sam_sThesisData, aes(x = Mussel, y = Oysters, color = Treatment)) +
+     geom_point() +
+     facet_wrap(~ Treatment) +
+    theme_bw()
+```
+
+#Look at the SHAPEEEESSS!!!
+
+```{r}
+ggplot(Sam_sThesisData, aes(x = Treatment, y = Oysters)) + 
+  geom_violin()
+```
+
+#Pretty cool, pretty cool. 
+
+```{r}
+ggplot(data = Sam_sThesisData) + 
+  geom_smooth(aes(x = Oysters, y = Mussel))
+```
+
+#The Big Guns
+```{r}
+ggplot(data = Sam_sThesisData, aes(x = Oysters, y = Mussel)) + 
+  geom_point(aes(color = Treatment)) + 
+  geom_smooth() +
+  labs(title = "Relationship between Oysters and Mussels",
+         x = "Oysters",
+         y = "Mussels") +
+  theme_bw() +
+  theme(text=element_text(size = 16))
+```
+
+#Clean names to nice R format
+
+```{r}
+#install.packages("janitor")
+library("janitor")
+Total_Clean <- Total_Fauna %>%
+  janitor::clean_names()
+
+names(Total_Clean)
+```
+
+
 
 
